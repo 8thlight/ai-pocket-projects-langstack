@@ -1,25 +1,8 @@
-# 🎯 AI Pocket Projects - Implementation Guide
+# 🎯 AI Pocket Projects - LangStack Edition (LangChain, LangGraph, LangSmith)
 
-> Production-ready systems with LangGraph orchestration and intelligent routing, context management, and tool use. 
+This implementation is based on the [8th Light AI Pocket Projects](https://github.com/8thlight/ai-pocket-projects) and [Travis' AI Agent Demo](https://github.com/T-rav/ai-agent-demo)
 
-This implementation is based on the [8th Light AI Pocket Projects](https://github.com/8thlight/ai-pocket-projects) learning path, specifically focusing on **Phase 1 (RAG)** and the foundational architecture for multi-agent systems.
-
-## 📚 What's Implemented
-
-### ✅ Phase 1: RAG Knowledge Foundation
-- **Vector-based knowledge retrieval** using Pinecone
-- **Intelligent routing** (simple vs. research mode)
-- **Multi-agent research workflow** (Planner → Gatherer → Report Builder)
-- **Citation tracking** with mandatory source attribution
-- **LangSmith integration** for prompt experimentation and monitoring
-- **Streaming responses** with real-time token generation
-
-### 🔄 Ingest Pipeline
-- **Document processing** for PDFs and Markdown
-- **Intelligent chunking** with semantic boundaries
-- **Metadata extraction** (titles, sections, structure)
-- **Vector embeddings** with OpenAI text-embedding-3-small
-- **Pinecone indexing** with efficient batch uploads
+> Agentic chat flow powered by LangGraph, with standard and deep research modes.
 
 ## 🗺️ Documentation Structure
 
@@ -109,7 +92,7 @@ This implementation is based on the [8th Light AI Pocket Projects](https://githu
 
 ## 🎓 Learning Path
 
-### For AI-Assisted Development
+### AI-Assisted Development
 
 This codebase is designed to be explored and extended using AI coding assistants (Cursor, Claude, GitHub Copilot). Specifically the first phase can be completly without looking at the code. 
 
@@ -126,6 +109,23 @@ This codebase is designed to be explored and extended using AI coding assistants
 The system uses GPT-4o-mini to classify queries:
 - **Simple**: Direct questions → Fast RAG retrieval + answer
 - **Research**: Complex topics → Multi-agent research workflow
+
+### Context Engineering
+Compress retrieved context to fit model limits without losing citations or key facts.
+
+- **Objectives**: maximize signal per token, preserve citation anchors, keep readability
+- **Techniques**
+  - Query-focused summarization (extract salient sentences; keep inline quotes where helpful)
+  - Rerank → deduplicate similar chunks before compression
+  - Citation-preserving compression: keep `document_title`, `file_name`, `chunk_index`, `doc_id`
+  - Structure-aware trimming: prefer headings, bullet points, tables over raw prose
+- **Mode policy**
+  - Simple: small k (e.g., 3–5), light extractive compression, no cross-source synthesis
+  - Research: larger k, per-source summaries + merged synthesis; retain `[KB‑n]`/`[WEB‑n]` tags
+- **Implementation hooks**
+  - Pre-answer: `rerank(top_k) → dedupe → compress(query)` with token budget guard
+  - Budget controls: `max_context_tokens`, `per_source_min_tokens`
+  - Observability: log pre/post token counts and kept/dropped sources in traces
 
 ### Multi-Agent Research
 Complex queries trigger a 3-phase agent workflow:
@@ -160,13 +160,6 @@ All agent interactions are traced:
 | **Backend** | FastAPI | REST API + SSE streaming |
 | **Frontend** | React + TypeScript | User interface |
 
-## 📊 Performance Characteristics
-
-- **Simple queries**: ~2-3s end-to-end (including RAG retrieval)
-- **Research reports**: ~30-60s (depends on web search depth)
-- **RAG retrieval**: k=3 for simple, k=5 for research
-- **Score threshold**: 0.5 (configurable in settings)
-
 ### Build It Step-by-Step
 
 This is a **learning-first** approach optimized for AI-assisted development:
@@ -177,14 +170,6 @@ This is a **learning-first** approach optimized for AI-assisted development:
 4. **`4-RESEARCH-WORKFLOWS.md`** - Add multi-agent research capabilities
 
 Each guide focuses on **concepts and direction** rather than copy-paste code - designed for exploration with your AI assistant.
-
-## 📝 Contributing
-
-This is a learning project. Feel free to:
-- Experiment with different architectures
-- Try alternative vector stores or LLM providers
-- Build new agent workflows
-- Improve documentation
 
 ## 📚 References
 

@@ -8,6 +8,9 @@ Goal: Turn complex questions into rigorous multi‑step research with predictabl
 - Report Builder emits a well‑structured markdown report with inline citations and a references section.
 - Loops are bounded; failures are surfaced clearly.
 - Evaluations in place for routing prompt - 3 minimum
+- Context compression: keep last ~10 turns with a running summary; per‑source summaries within a token budget
+  - Keep last N turns verbatim (N≈8–12); fold older turns into a running summary
+  - On overflow, update the summary and drop the oldest verbatim turn
 
 ## 🧱 Roles & Responsibilities
 - Planner
@@ -26,6 +29,12 @@ Goal: Turn complex questions into rigorous multi‑step research with predictabl
 - Soft cap on gatherer iterations (e.g., 3–5) with a short justification if exceeded.
 - Prefer breadth over depth after the second pass (reduce duplicative searches).
 - Fail fast if no sources are found after the first pass (signal to user).
+
+## 🧠 Context Compression & Token Budgets
+Keep the research context within model limits without losing traceability.
+
+- Token management: avoid sending full history. Keep the last ~10 turns and roll older turns into a running summary that is included with the recent context.
+- Large result sets: summarize retrieved content as per‑source notes before synthesis to prevent oversized contexts.
 
 ## 🧪 Routing Evaluation & Prompt Tuning
 Routing is tricky—plan to iterate. I strongly advise you add a lightweight eval loop to tune the router:
